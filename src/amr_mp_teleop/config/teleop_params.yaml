@@ -1,0 +1,23 @@
+
+manual_control_node:
+
+  ros__parameters:
+
+    # Kecepatan linear saat tekan W/S (m/s)
+
+    # Akan dikonversi ke unit PLC oleh kinematics_node
+
+    linear_speed: 0.3
+
+
+
+    # Kecepatan angular saat tekan A/D (rad/s)
+
+    angular_speed: 0.8
+
+
+
+    # Rate publikasi /cmd_vel (Hz)
+
+    publish_hz: 10.0
+

@@ -1,0 +1,15 @@
+# ROS 2 Workspace Ignore
+build/
+install/
+log/
+
+# Python & C++ Ignore
+__pycache__/
+*.pyc
+*.o
+*.so
+*.os
+
+# IDEs
+.vscode/
+.idea/

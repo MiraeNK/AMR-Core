@@ -1,0 +1,12 @@
+<?xml version="1.0"?>
+<library path="amr_mp_hardware">
+  <class name="amr_mp_hardware/PoleBotHardwareInterface"
+         type="amr_mp_hardware::PoleBotHardwareInterface"
+         base_class_type="hardware_interface::SystemInterface">
+    <description>
+      ROS 2 Control hardware interface untuk AMR Polebot.
+      Menjembatani /wheel_ticks dan /wheel_cmd_vel ke ros2_control.
+      Koneksi PLC tetap dikelola oleh plc_driver_node.
+    </description>
+  </class>
+</library>

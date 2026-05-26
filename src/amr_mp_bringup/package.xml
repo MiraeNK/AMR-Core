@@ -1,0 +1,22 @@
+<?xml version="1.0"?>
+<?xml-model href="http://download.ros.org/schema/package_format3.xsd" schematypens="http://www.w3.org/2001/XMLSchema"?>
+<package format="3">
+  <name>amr_mp_bringup</name>
+  <version>1.0.0</version>
+  <description>Bringup package untuk AMR Polebot. Dua mode: mapping dan navigation.</description>
+  <maintainer email="miraenk7@gmail.com">Hafizh Husaini</maintainer>
+  <license>Apache-2.0</license>
+  <buildtool_depend>ament_cmake</buildtool_depend>
+  <depend>rclpy</depend>
+  <depend>amr_hardware_bridge</depend>
+  <depend>amr_base_controller</depend>
+  <depend>amr_mp_description</depend>
+  <depend>amr_mp_teleop</depend>
+  <depend>slam_toolbox</depend>
+  <depend>nav2_bringup</depend>
+  <test_depend>ament_lint_auto</test_depend>
+  <test_depend>ament_lint_common</test_depend>
+  <export>
+    <build_type>ament_cmake</build_type>
+  </export>
+</package>

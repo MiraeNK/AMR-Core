@@ -1,0 +1,61 @@
+
+<?xml version="1.0"?>
+
+<?xml-model href="http://download.ros.org/schema/package_format3.xsd" schematypens="http://www.w3.org/2001/XMLSchema"?>
+
+<package format="3">
+
+  <name>amr_base_controller</name>
+
+  <version>1.0.0</version>
+
+  <description>
+
+    Base Controller Layer untuk AMR.
+
+    Mengkonversi /wheel_ticks menjadi /odom dan TF broadcast.
+
+    Mengkonversi /cmd_vel (Twist) menjadi /wheel_cmd_vel.
+
+    Rumus kinematika identik dengan digital_twin_enhanced.py yang sudah teruji.
+
+  </description>
+
+  <maintainer email="miraenk7@gmail.com">Hafizh Husaini</maintainer>
+
+  <license>Apache-2.0</license>
+
+
+
+  <depend>rclpy</depend>
+
+  <depend>std_msgs</depend>
+
+  <depend>nav_msgs</depend>
+
+  <depend>geometry_msgs</depend>
+
+  <depend>tf2_ros</depend>
+
+  <depend>tf2</depend>
+
+
+
+  <test_depend>ament_copyright</test_depend>
+
+  <test_depend>ament_flake8</test_depend>
+
+  <test_depend>ament_pep257</test_depend>
+
+  <test_depend>python3-pytest</test_depend>
+
+
+
+  <export>
+
+    <build_type>ament_python</build_type>
+
+  </export>
+
+</package>
+
