@@ -1,3 +1,14 @@
+
+
+
+
+
+
+
+
+
+
+
 import os
 
 import xacro
@@ -9,6 +20,8 @@ from launch.actions import (IncludeLaunchDescription, TimerAction,
 from launch.event_handlers import OnShutdown
 from launch.launch_description_sources import PythonLaunchDescriptionSource
 from launch_ros.actions import Node
+
+
 
 
 
@@ -43,6 +56,41 @@ def generate_launch_description():
     os.makedirs(maps_dir, exist_ok=True)
 
     map_path = os.path.join(maps_dir, 'gudang')
+    
+    
+    
+    # 0.2 installation directory of sick_scan_xd
+    
+    sick_scan_dir = get_package_share_directory('sick_scan_xd')
+    
+    # 0.3 include the specific file our model is 5xx not 7xx
+    
+    lidar_config_file = os.path.join(this_pkg, 'config', 'sick_tim_5xx_polebot.launch')
+    
+    # 0.4 and lidar declaration
+    
+    sick_lidar_node = Node(
+
+        package='sick_scan_xd',
+
+        executable='sick_generic_caller',
+
+        output='screen',
+
+        arguments=[lidar_config_file],
+
+        parameters=[{
+
+            'hostname'         : '192.168.3.30',
+
+            'frame_id'         : 'laser_link',
+
+            'tf_base_frame_id' : 'base_link',
+
+        }]
+
+    )
+
 
 
     # 1. Robot State Publisher
@@ -135,7 +183,7 @@ def generate_launch_description():
 
                 'use_sim_time': 'false',
 
-                'slam_params_file': os.path.join(
+                'params_file': os.path.join(
 
                     this_pkg, 'config', 'slam_toolbox_params.yaml'),
 
@@ -214,6 +262,7 @@ def generate_launch_description():
 
 
     return LaunchDescription([
+    	sick_lidar_node,
 
         rsp,
 

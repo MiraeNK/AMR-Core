@@ -7,13 +7,13 @@ manual_control_node:
 
     # Akan dikonversi ke unit PLC oleh kinematics_node
 
-    linear_speed: 0.3
+    linear_speed: 1.0
 
 
 
     # Kecepatan angular saat tekan A/D (rad/s)
 
-    angular_speed: 0.8
+    angular_speed: 1.66
 
 
 

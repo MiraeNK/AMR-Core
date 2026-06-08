@@ -7,6 +7,7 @@
   <maintainer email="miraenk7@gmail.com">Hafizh Husaini</maintainer>
   <license>Apache-2.0</license>
   <buildtool_depend>ament_cmake</buildtool_depend>
+  <exec_depend>sick_scan_xd</exec_depend> <!-- new -->
   <depend>rclpy</depend>
   <depend>amr_hardware_bridge</depend>
   <depend>amr_base_controller</depend>

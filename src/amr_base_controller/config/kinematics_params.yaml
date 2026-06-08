@@ -1,85 +1,36 @@
-
 # =============================================================================
-
 # kinematics_params.yaml
-
 # Konfigurasi amr_base_controller/kinematics_node
-
 # Design And Develop : Engineering - Eqdev - AISIN Indonesia
-
 # Maintainer : Hafizh Husaini <miraenk7@gmail.com>
-
 # Deskripsi  : Parameter kinematika differential drive Polebot.
-
 #              Rumus identik dengan digital_twin_enhanced.py yang sudah teruji.
-
 #              Nilai default sudah tervalidasi di lapangan.
-
 # =============================================================================
-
-
 
 kinematics_node:
-
   ros__parameters:
-
-
-
     # ── Parameter Mekanikal ───────────────────────────────────────────────────
-
     # WAJIB sama dengan nilai di plc_driver_params.yaml
-
     wheel_diameter_m: 0.110
-
     wheel_separation_m: 0.240
-
     ticks_per_rev: 360000.0
-
     gear_ratio: 1.0
 
-
-
     # ── Frame ID ──────────────────────────────────────────────────────────────
-
     odom_frame_id: 'odom'
-
     base_frame_id: 'base_footprint'
 
+    # ── Konversi cmd_vel ke kecepatan roda ────────────────────────────────────
+    # DIUBAH: Disesuaikan dengan top speed di nav2_params.yaml (2.5 m/s)
+    max_linear_vel: 2.5       # m/s
+    max_angular_vel: 3.0      # rad/s
 
-
-    # ── Konversi cmd_vel ke kecepatan roda ───────────────────────────────────
-
-    # max_linear_vel  : kecepatan linear maksimum robot (m/s)
-
-    #                   saat speed PLC = speed_max (100)
-
-    # max_angular_vel : kecepatan angular maksimum robot (rad/s)
-
-    #                   saat pivot turn speed PLC = speed_turn (30)
-
-    # Nilai ini hasil kalibrasi lapangan — ukur jarak tempuh per detik
-
-    # saat robot berjalan dengan speed=100.
-
-    max_linear_vel: 0.5        # m/s  — kecepatan maju/mundur maksimum
-
-    max_angular_vel: 1.0       # rad/s — kecepatan putar maksimum
-
-
-
-    # ── Batas Kecepatan Output ke /wheel_cmd_vel ─────────────────────────────
-
-    speed_max: 100
-
-    speed_min: -100
-
-
+    # ── Batas Kecepatan Output ke /wheel_cmd_vel ──────────────────────────────
+    # DIUBAH: Disesuaikan dengan batas maksimal PLC (250) agar tidak dipotong
+    speed_max: 250
+    speed_min: -250
 
     # ── Filter Odometri ───────────────────────────────────────────────────────
-
-    # jump_filter_m : identik dengan plc_driver_node
-
-    #                 double-check di layer ini juga untuk keamanan
-
-    jump_filter_m: 0.20
-
+    # DIUBAH: Diperbesar ke 5.0 agar sama dengan plc_driver_params dan mencegah freeze
+    jump_filter_m: 5.0

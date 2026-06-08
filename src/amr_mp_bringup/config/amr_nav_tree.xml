@@ -1,0 +1,26 @@
+<root main_tree_to_execute="MainTree">
+  <BehaviorTree ID="MainTree">
+    
+    <Sequence name="NavigateWithLockedPath">
+      
+      <ComputePathToPose goal="{goal}" path="{path}" planner_id="GridBased"/>
+      <ClearEntireCostmap name="ClearGlobalCostmap-Context" service_name="global_costmap/clear_entirely_global_costmap"/>
+      
+      <RecoveryNode number_of_retries="9999" name="FollowPathRecovery">
+        
+        <FollowPath path="{path}" controller_id="FollowPath"/>
+        
+        <ReactiveFallback name="RecoveryFallback">
+          <GoalUpdated/>
+          <RoundRobin name="RecoveryActions">
+            <Wait wait_duration="3.0"/>
+            <ClearEntireCostmap name="ClearLocalCostmap-Subtree" service_name="local_costmap/clear_entirely_local_costmap"/>
+            <BackUp backup_dist="0.10" backup_speed="0.05"/>
+          </RoundRobin>
+        </ReactiveFallback>
+        
+      </RecoveryNode>
+      
+    </Sequence>
+  </BehaviorTree>
+</root>
