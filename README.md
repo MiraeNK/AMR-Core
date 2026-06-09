@@ -1,10 +1,4 @@
-Ini adalah pembaruan `README.md` Anda. Saya telah menaikkan versinya menjadi **1.3.0** (Juni 2026) dan **membersihkan seluruh sisa-sisa ROS 1, `catkin_ws`, bridge, dan Autonics**, lalu menggantinya dengan integrasi **SICK LiDAR (`sick_scan_xd`)** yang berjalan murni (native) di ROS 2 sesuai dengan arsitektur terbaru kita.
 
-Gaya desain, tabel, dan diagram ASCII tetap dipertahankan persis seperti standar emas yang Anda buat. Silakan *copy-paste* teks di bawah ini ke dalam file `README.md` Anda:
-
----
-
-```markdown
 # AMR MP — Complete System Documentation
 
 **Project:** AMR Polebot — ROS 2 Architecture  
