@@ -1,36 +1,57 @@
 # =============================================================================
 # kinematics_params.yaml
 # Konfigurasi amr_base_controller/kinematics_node
-# Design And Develop : Engineering - Eqdev - AISIN Indonesia
 # Maintainer : Hafizh Husaini <miraenk7@gmail.com>
-# Deskripsi  : Parameter kinematika differential drive Polebot.
-#              Rumus identik dengan digital_twin_enhanced.py yang sudah teruji.
-#              Nilai default sudah tervalidasi di lapangan.
+#
+# Revisi: penambahan PIVOT ANTI-STALL untuk mode campuran (kadang lurus,
+# kadang berbalik). Saat robot harus berputar di tempat, tenaga dinaikkan
+# agar pivot menembus gesekan lantai dan tidak stall/trip.
 # =============================================================================
-
 kinematics_node:
   ros__parameters:
-    # ── Parameter Mekanikal ───────────────────────────────────────────────────
-    # WAJIB sama dengan nilai di plc_driver_params.yaml
-    wheel_diameter_m: 0.110
+    # -- Mekanikal --
+    wheel_diameter_m:   0.110
     wheel_separation_m: 0.240
-    ticks_per_rev: 360000.0
-    gear_ratio: 1.0
+    ticks_per_rev:      360000.0
+    gear_ratio:         1.0
 
-    # ── Frame ID ──────────────────────────────────────────────────────────────
+    # -- Frame ID --
     odom_frame_id: 'odom'
     base_frame_id: 'base_footprint'
 
-    # ── Konversi cmd_vel ke kecepatan roda ────────────────────────────────────
-    # DIUBAH: Disesuaikan dengan top speed di nav2_params.yaml (2.5 m/s)
-    max_linear_vel: 2.5       # m/s
-    max_angular_vel: 3.0      # rad/s
+    # -- Referensi Nav2 --
+    max_linear_vel:  3.0
+    max_angular_vel: 1.5
 
-    # ── Batas Kecepatan Output ke /wheel_cmd_vel ──────────────────────────────
-    # DIUBAH: Disesuaikan dengan batas maksimal PLC (250) agar tidak dipotong
-    speed_max: 250
-    speed_min: -250
+    # -- Batas Register PLC --
+    speed_max:  350
+    speed_min: -350
 
-    # ── Filter Odometri ───────────────────────────────────────────────────────
-    # DIUBAH: Diperbesar ke 5.0 agar sama dengan plc_driver_params dan mencegah freeze
+    # -- Filter Odometri --
     jump_filter_m: 5.0
+
+    # -- Zona Transit (maju) --
+    nav2_cruise_threshold: 0.10   # m/s
+    plc_cruise_min: 120.0
+    plc_cruise_max: 350.0
+
+    # -- Zona Presisi (kecepatan rendah) --
+    plc_precision_max: 80.0
+    plc_deadband: 35.0
+
+    # -- Pivot Anti-Stall (BARU) --
+    # plc_pivot_min: tenaga minimum saat robot berputar di tempat.
+    #   35 terbukti menyebabkan stall (mendengung) saat pivot karena gesekan
+    #   lantai. 55 memberi torsi cukup agar pivot tuntas.
+    #   Jika robot MASIH stall/trip saat berbalik, naikkan (60-70).
+    #   Jika pivot terlalu kasar/overshoot, turunkan (45-50).
+    plc_pivot_min: 55.0
+    # pivot_vx_eps: vx di bawah ini dianggap "tidak maju" (kandidat pivot).
+    pivot_vx_eps: 0.05   # m/s
+
+    # -- Ramping Anti-Trip --
+    plc_ramp_rate: 40.0
+
+    # -- Zero-Snap --
+    stop_lin_eps: 0.03   # m/s
+    stop_ang_eps: 0.15   # rad/s

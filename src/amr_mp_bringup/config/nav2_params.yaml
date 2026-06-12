@@ -3,7 +3,6 @@ amcl:
     use_sim_time: false
     transform_tolerance: 1.0
     save_pose_rate: 0.5
-    # --- DITAMBAHKAN: Agar Nav2 otomatis siap di titik awal tanpa perlu 2D Pose Estimate
     set_initial_pose: true
     initial_pose:
       x: 0.0
@@ -45,11 +44,7 @@ bt_navigator:
 controller_server:
   ros__parameters:
     use_sim_time: false
-    
-    # --- PROCESSING SPEED DINAIKKAN ---
-    controller_frequency: 20.0      # DIUBAH: Otak lokal kini berhitung 20x per detik (sangat responsif)
-    # ----------------------------------
-    
+    controller_frequency: 10.0
     min_x_velocity_threshold: 0.05
     min_y_velocity_threshold: 0.0
     min_theta_velocity_threshold: 0.05
@@ -59,59 +54,65 @@ controller_server:
     progress_checker:
       plugin: "nav2_controller::SimpleProgressChecker"
       required_movement_radius: 0.05
-      movement_time_allowance: 25.0
+      # Diturunkan 15 -> 10: hentikan pivot futile lebih cepat, picu recovery.
+      movement_time_allowance: 10.0
     general_goal_checker:
       stateful: true
       plugin: "nav2_controller::SimpleGoalChecker"
+      # DINAIKKAN 0.20 -> 0.30. Lever utama untuk mode campuran: robot
+      # menyatakan "sampai" sebelum perlu pivot presisi terminal yang memicu
+      # stall. Robot mendekat dengan kurva, lalu selesai tanpa berputar.
       xy_goal_tolerance: 0.30
-      yaw_goal_tolerance: 0.30
+      # Bebas hadap mana saja saat goal tercapai.
+      yaw_goal_tolerance: 3.14
+
     FollowPath:
       plugin: "dwb_core::DWBLocalPlanner"
       debug_trajectory_details: true
+      # min_vel_x tetap 0.0: rotasi di tempat TETAP diizinkan untuk kasus
+      # robot harus berbalik tajam (mode campuran).
       min_vel_x: 0.0
       min_vel_y: 0.0
-      max_vel_x: 3.0          # Top speed linier 3.0 m/s
+      max_vel_x: 0.6
       max_vel_y: 0.0
-      max_vel_theta: 3.0      # Putaran 3.0 rad/s
-      
-      # --- Tenaga minimal agar robot fisik sanggup melawan gaya gesek lantai ---
-      min_speed_xy: 0.10      
-      min_speed_theta: 0.35   
-      # -------------------------------------------------------------------------
-      
-      max_speed_xy: 3.0       
-      
-      # --- TUNING AREA KECIL & PERLINDUNGAN MOTOR ---
-      acc_lim_x: 4.0          # Akselerasi gas tinggi agar cepat melesat dari jarak pendek
+      # Diturunkan 0.8 -> 0.7: batasi permintaan rotasi DWB agar overshoot
+      # pivot lebih kecil.
+      max_vel_theta: 0.7
+      min_speed_xy: 0.0
+      min_speed_theta: 0.0
+      max_speed_xy: 0.6
+      acc_lim_x: 1.0
       acc_lim_y: 0.0
-      acc_lim_theta: 4.0
-      decel_lim_x: -2.5       # DIUBAH: Rem menengah (tidak trip, tapi cukup pakem untuk ruang sempit)
+      acc_lim_theta: 1.0
+      decel_lim_x: -1.5
       decel_lim_y: 0.0
-      decel_lim_theta: -2.5   
-      # ----------------------------------------------
-      
+      decel_lim_theta: -1.0
+
       vx_samples: 20
-      vy_samples: 5
+      vy_samples: 1
       vtheta_samples: 20
       sim_time: 1.5
+
       linear_granularity: 0.05
       angular_granularity: 0.025
       transform_tolerance: 0.2
+      # Samakan dengan goal_checker.
       xy_goal_tolerance: 0.30
-      trans_stopped_velocity: 0.25
+      trans_stopped_velocity: 0.10
       short_circuit_trajectory_evaluation: true
       stateful: true
-      critics: ["RotateToGoal", "Oscillation", "BaseObstacle", "GoalAlign", "PathAlign", "PathDist", "GoalDist"]
-      BaseObstacle.scale: 0.02
-      PathAlign.scale: 32.0
+
+      # GoalAlign & RotateToGoal sengaja tidak disertakan.
+      critics: ["BaseObstacle", "PathAlign", "PathDist", "GoalDist"]
+
+      BaseObstacle.scale: 0.05
+      # PathAlign diturunkan 12 -> 8: kurangi dorongan meluruskan diri ke
+      # jalur (penyebab pivot) agar robot lebih memilih melengkung maju.
+      PathAlign.scale: 8.0
       PathAlign.forward_point_distance: 0.1
-      GoalAlign.scale: 24.0
-      GoalAlign.forward_point_distance: 0.1
-      PathDist.scale: 32.0
+      PathDist.scale: 24.0
+      # GoalDist dominan: prioritas mencapai titik XY, bukan orientasi.
       GoalDist.scale: 24.0
-      RotateToGoal.scale: 32.0
-      RotateToGoal.slowing_factor: 2.0
-      RotateToGoal.lookahead_time: -1.0
 
 local_costmap:
   local_costmap:
@@ -122,15 +123,18 @@ local_costmap:
       robot_base_frame: base_footprint
       use_sim_time: false
       rolling_window: true
-      width: 2
-      height: 2
+      width: 6
+      height: 6
       resolution: 0.05
-      robot_radius: 0.25
+      # Footprint persegi panjang menggantikan robot_radius lingkaran.
+      # Polebot ~40cm (lebar) x ~50cm (panjang). base_footprint diasumsikan
+      # di PUSAT geometris sasis. Margin keamanan 2cm tiap sisi.
+      footprint: "[ [0.25, 0.22], [0.25, -0.22], [-0.18, -0.22], [-0.18, 0.22] ]"
       plugins: ["voxel_layer", "inflation_layer"]
       inflation_layer:
         plugin: "nav2_costmap_2d::InflationLayer"
         cost_scaling_factor: 15.0
-        inflation_radius: 0.10
+        inflation_radius: 0.15
       voxel_layer:
         plugin: "nav2_costmap_2d::VoxelLayer"
         enabled: true
@@ -147,10 +151,10 @@ local_costmap:
           clearing: true
           marking: true
           data_type: "LaserScan"
-          raytrace_max_range: 2.0
-          raytrace_min_range: 0.50
-          obstacle_max_range: 1.5
-          obstacle_min_range: 0.50
+          raytrace_max_range: 3.0
+          raytrace_min_range: 0.30
+          obstacle_max_range: 2.5
+          obstacle_min_range: 0.30
       static_layer:
         plugin: "nav2_costmap_2d::StaticLayer"
         map_subscribe_transient_local: true
@@ -164,7 +168,8 @@ global_costmap:
       global_frame: map
       robot_base_frame: base_footprint
       use_sim_time: false
-      robot_radius: 0.25
+      # Footprint persegi panjang (sama dgn local costmap).
+      footprint: "[ [0.25, 0.22], [0.25, -0.22], [-0.18, -0.22], [-0.18, 0.22] ]"
       resolution: 0.05
       track_unknown_space: true
       plugins: ["static_layer", "obstacle_layer", "inflation_layer"]
@@ -178,17 +183,18 @@ global_costmap:
           clearing: true
           marking: true
           data_type: "LaserScan"
-          raytrace_max_range: 2.0
-          raytrace_min_range: 0.50
-          obstacle_max_range: 1.5
-          obstacle_min_range: 0.50
+          raytrace_max_range: 3.0
+          raytrace_min_range: 0.30
+          obstacle_max_range: 2.5
+          obstacle_min_range: 0.30
       static_layer:
         plugin: "nav2_costmap_2d::StaticLayer"
         map_subscribe_transient_local: true
       inflation_layer:
         plugin: "nav2_costmap_2d::InflationLayer"
         cost_scaling_factor: 15.0
-        inflation_radius: 0.10
+        # DITURUNKAN 0.30 -> 0.25: buka ruang di global costmap juga.
+        inflation_radius: 0.25
       always_send_full_costmap: true
 
 map_server:
@@ -206,7 +212,7 @@ map_saver:
 
 planner_server:
   ros__parameters:
-    expected_planner_frequency: 20.0
+    expected_planner_frequency: 10.0
     use_sim_time: false
     planner_plugins: ["GridBased"]
     GridBased:
@@ -223,7 +229,7 @@ recoveries_server:
     recovery_plugins: ["back_up", "wait"]
     back_up:
       plugin: "nav2_recoveries/BackUp"
-      speed: 0.25     # Memaksa robot mundur dengan tenaga yang lebih besar agar tidak diam
+      speed: 0.25
     wait:
       plugin: "nav2_recoveries/Wait"
     global_frame: odom

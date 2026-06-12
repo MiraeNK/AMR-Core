@@ -23,7 +23,7 @@ slam_toolbox:
 
     base_frame: base_footprint
 
-    scan_topic: /scan_relay
+    scan_topic: /scan
 
     use_map_saver: true
 

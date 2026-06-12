@@ -107,24 +107,6 @@ def generate_launch_description():
         parameters=[{'use_sim_time': False}],
     )
 
-    # 8. Auto Initial Pose - Mundur menjadi delay 10 detik agar sistem utuh
-    initial_pose = TimerAction(
-        period=10.0,
-        actions=[ExecuteProcess(
-            cmd=[
-                'ros2', 'topic', 'pub', '--once',
-                '/initialpose',
-                'geometry_msgs/msg/PoseWithCovarianceStamped',
-                '{"header": {"frame_id": "map"}, '
-                '"pose": {"pose": {'
-                '"position": {"x": 0.5, "y": -1.5, "z": 0.0}, '
-                '"orientation": {"x": 0.0, "y": 0.0, "z": 0.0, "w": 1.0}'
-                '}, "covariance": [0.25,0,0,0,0,0, 0,0.25,0,0,0,0, 0,0,0,0,0,0, 0,0,0,0,0,0, 0,0,0,0,0,0, 0,0,0,0,0,0.06852]}}'
-            ],
-            output='screen',
-        )]
-    )
-
     return LaunchDescription([
         DeclareLaunchArgument(
             'map',
@@ -139,5 +121,4 @@ def generate_launch_description():
         nav2_nav,
         nav2_loc,
         rviz2_node,
-        initial_pose,
     ])

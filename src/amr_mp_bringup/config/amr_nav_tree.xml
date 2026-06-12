@@ -1,26 +1,64 @@
+<!--
+  amr_nav_tree.xml — Behavior Tree Polebot AMR
+  Maintainer : Hafizh Husaini <miraenk7@gmail.com>
+
+  Logic Recovery (urutan prioritas):
+  1. Jika goal berubah saat navigasi -> langsung ikuti goal baru (GoalUpdated)
+  2. FollowPath gagal -> masuk RecoveryNode (max 6 kali total):
+     Putaran 1 : Clear local costmap  (buang obstacle hantu)
+     Putaran 2 : Mundur 0.30 m       (beri ruang gerak)
+     Putaran 3 : Wait 2 detik         (beri waktu costmap update)
+  3. Setelah 6 retry habis -> Replan: minta jalur global baru dari posisi saat ini
+  4. Jika replan juga gagal -> navigasi dinyatakan gagal (waypoint_follower
+     akan lanjut ke waypoint berikutnya karena stop_on_failure: false)
+-->
 <root main_tree_to_execute="MainTree">
   <BehaviorTree ID="MainTree">
-    
-    <Sequence name="NavigateWithLockedPath">
-      
-      <ComputePathToPose goal="{goal}" path="{path}" planner_id="GridBased"/>
-      <ClearEntireCostmap name="ClearGlobalCostmap-Context" service_name="global_costmap/clear_entirely_global_costmap"/>
-      
-      <RecoveryNode number_of_retries="9999" name="FollowPathRecovery">
-        
+
+    <RecoveryNode number_of_retries="3" name="NavigateRecovery">
+
+      <!-- TAHAP 1: Hitung jalur global dan langsung ikuti -->
+      <Sequence name="NavigateWithPath">
+        <ComputePathToPose goal="{goal}" path="{path}" planner_id="GridBased"/>
+        <ClearEntireCostmap name="ClearGlobalCostmap-Context"
+                            service_name="global_costmap/clear_entirely_global_costmap"/>
+
+        <!-- TAHAP 2: Follow path dengan recovery terbatas -->
+        <RecoveryNode number_of_retries="6" name="FollowPathRecovery">
+
+          <FollowPath path="{path}" controller_id="FollowPath"/>
+
+          <ReactiveFallback name="RecoveryFallback">
+            <!-- Jika goal berubah, batalkan recovery dan ikuti goal baru -->
+            <GoalUpdated/>
+
+            <RoundRobin name="RecoveryActions">
+              <!-- Putaran 1: Buang obstacle hantu di local costmap -->
+              <ClearEntireCostmap name="ClearLocalCostmap"
+                                  service_name="local_costmap/clear_entirely_local_costmap"/>
+              <!-- Putaran 2: Mundur lebih jauh agar punya ruang untuk belok -->
+              <BackUp backup_dist="0.30" backup_speed="0.08"/>
+              <!-- Putaran 3: Tunggu sebentar, beri costmap waktu update -->
+              <Wait wait_duration="2.0"/>
+            </RoundRobin>
+          </ReactiveFallback>
+
+        </RecoveryNode>
+      </Sequence>
+
+      <!-- TAHAP 3: Jika 6 retry habis, minta jalur global BARU -->
+      <!-- Robot sudah bergeser dari posisi awal akibat recovery,
+           jalur baru dihitung dari posisi aktual saat ini -->
+      <Sequence name="ReplanSequence">
+        <ClearEntireCostmap name="ClearGlobalCostmap-Replan"
+                            service_name="global_costmap/clear_entirely_global_costmap"/>
+        <ClearEntireCostmap name="ClearLocalCostmap-Replan"
+                            service_name="local_costmap/clear_entirely_local_costmap"/>
+        <ComputePathToPose goal="{goal}" path="{path}" planner_id="GridBased"/>
         <FollowPath path="{path}" controller_id="FollowPath"/>
-        
-        <ReactiveFallback name="RecoveryFallback">
-          <GoalUpdated/>
-          <RoundRobin name="RecoveryActions">
-            <Wait wait_duration="3.0"/>
-            <ClearEntireCostmap name="ClearLocalCostmap-Subtree" service_name="local_costmap/clear_entirely_local_costmap"/>
-            <BackUp backup_dist="0.10" backup_speed="0.05"/>
-          </RoundRobin>
-        </ReactiveFallback>
-        
-      </RecoveryNode>
-      
-    </Sequence>
+      </Sequence>
+
+    </RecoveryNode>
+
   </BehaviorTree>
 </root>
