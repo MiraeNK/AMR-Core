@@ -1,49 +1,42 @@
 # =============================================================================
 # plc_driver_params.yaml
 # Konfigurasi amr_hardware_bridge/plc_driver_node
-# Design and Manufactured : Equipment Development 
-# Maintainer : Hafizh Husaini - Intern <miraenk7@gmail.com> 
-# Deskripsi  : Parameter yang dapat disesuaikan per unit AMR.
-#              Nilai default sudah tervalidasi untuk Polebot prototype.
-#              Ubah hanya setelah pengujian fisik.
+# Design and Manufactured : Equipment Development
+# Maintainer : Hafizh Husaini - Intern <miraenk7@gmail.com>
 # =============================================================================
 plc_driver_node:
   ros__parameters:
     # ── Koneksi PLC ──────────────────────────────────────────────────────────
     plc_host: '192.168.3.250'
     plc_port: 5007
-    cycle_hz: 10.0
+    cycle_hz: 20.0
     reconnect_s: 2.0
     # ── Parameter Mekanikal Roda ──────────────────────────────────────────────
-    # PENTING: ubah hanya jika roda fisik diganti dan sudah dikalibrasi ulang.
     wheel_diameter_m: 0.110
     wheel_separation_m: 0.240
     ticks_per_rev: 360000.0
     gear_ratio: 1.0
     # ── Batas Kecepatan ───────────────────────────────────────────────────────
-    # Satuan: unit PLC (hardcoded 32-bit signed, range -100 s/d 100)
     speed_max: 250
     speed_min: -250
     # ── Keamanan Hardware ─────────────────────────────────────────────────────
-    # JANGAN turunkan zero_crossing_cooldown_s di bawah 0.4
-    # tanpa pengujian terlebih dahulu — berisiko trip motor driver BLVD.
     zero_crossing_cooldown_s: 0.0
-    
-    # --- DIUBAH: Filter diperbesar ekstrem agar RViz tidak membeku saat akselerasi tinggi
     jump_filter_m: 5.0
-    # -------------------------------------------------------------------------
-    
-    # ── Register PLC ─────────────────────────────────────────────────────────
-    # Sesuaikan jika mapping register di program ladder PLC berubah.
+    # ── Register Encoder ─────────────────────────────────────────────────────
     enc_head: 'D40'
     enc_read_size: 102
     left_lo_idx: 0
     left_hi_idx: 1
     right_lo_idx: 100
     right_hi_idx: 101
-    # --- KOREKSI INVERSI: REGISTER DITUKAR DI SINI ---
+    # ── Register Motor CMD ────────────────────────────────────────────────────
+    # KOREKSI INVERSI: register ditukar di sini
     cmd_right_head: 'D161'
     cmd_left_head: 'D61'
-    # -------------------------------------------------
     heartbeat_head: 'M211'
     servo_lock_head: 'M220'
+    # ── Register Virtual Line (section ROS VIRTUAL LINE di ladder) ───────────
+    vl_cte_head:      'D310'   # input CTE ke PID PLC
+    vl_mode_bit:      'M230'   # 1=mode ROS virtual, 0=magnetic fisik
+    vl_heartbeat_bit: 'M231'   # toggle tiap cycle sebagai watchdog
+    vl_gate_bit:      'M236'   # 1=motor stop paksa, 0=motor boleh jalan

@@ -1,0 +1,21 @@
+agv_line_follower_node:
+  ros__parameters:
+    cycle_hz: 20.0
+    goal_tolerance_m: 0.30
+    sensor_offset_m: 0.25
+    cte_max_m: 0.20
+    
+    # KESIMPULAN TUNING TERAKHIR:
+    cte_scale_override: 140.0 
+    cte_smoothing_alpha: 0.5 
+    cte_deadband_m: 0.015     # 1.5 cm zona mati agar tidak "hunting"
+    
+    obstacle_dist_m: 0.45
+    obstacle_min_dist_m: 0.20
+    obstacle_angle_deg: 45.0
+    obstacle_confirm_n: 3
+    
+    curvature_lookahead_n: 6
+    curvature_soft_deg: 15.0
+    curvature_hard_deg: 45.0   
+    curvature_min_speed_scale: 0.20

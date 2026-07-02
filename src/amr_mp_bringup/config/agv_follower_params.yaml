@@ -1,0 +1,41 @@
+# =============================================================================
+# agv_follower_params.yaml
+# Parameter untuk sistem AGV-style path following Polebot
+# Maintainer : Hafizh Husaini <miraenk7@gmail.com>
+# =============================================================================
+
+path_follower_node:
+  ros__parameters:
+    # -- Pure Pursuit --
+    # Jarak lookahead: seberapa jauh ke depan robot "membidik" di jalur.
+    # Terlalu pendek = gerakan tersentak-sentak. Terlalu panjang = tikungan terpotong.
+    # Untuk tikungan radius 0.5 m, nilai 0.60 sudah teruji.
+    lookahead_dist:   0.60   # m
+    min_lookahead:    0.35   # m, batas bawah adaptif
+    max_lookahead:    1.20   # m, batas atas adaptif
+
+    # -- Kecepatan --
+    cruise_speed:     0.40   # m/s, kecepatan normal di lurus
+    corner_speed:     0.20   # m/s, kecepatan saat tikungan tajam
+    corner_threshold: 0.30   # rad (~17°), alpha di atas ini = lambat
+
+    # -- Goal --
+    goal_tolerance:   0.25   # m, jarak ke titik akhir = selesai
+
+    # -- Batas rotasi --
+    max_angular_vel:  0.80   # rad/s
+
+    # -- Obstacle Stop --
+    # stop_dist: jarak deteksi berhenti
+    # resume_dist: harus lebih jauh dari stop_dist (histeresis anti-chatter)
+    # half_angle: sektor pemantauan kiri-kanan dari sumbu maju robot
+    obstacle_stop_dist:   0.45   # m  (< 0.5 m sesuai permintaan)
+    obstacle_resume_dist: 0.55   # m  (lebih jauh 10 cm dari stop)
+    obstacle_half_angle:  0.52   # rad (~30°)
+
+    # -- Loop --
+    control_frequency: 10.0   # Hz
+
+ws_bridge_node:
+  ros__parameters:
+    ws_port: 9090

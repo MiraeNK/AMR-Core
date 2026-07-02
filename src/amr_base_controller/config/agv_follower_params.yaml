@@ -1,0 +1,31 @@
+# =============================================================================
+# agv_line_follower_params.yaml
+# Konfigurasi agv_line_follower_node — Virtual Magnetic Line Follower
+# Design and Manufactured : Equipment Development
+# Maintainer : Hafizh Husaini - Intern <miraenk7@gmail.com>
+# Letakkan di: amr_hardware_bridge/config/agv_line_follower_params.yaml
+# =============================================================================
+agv_line_follower_node:
+  ros__parameters:
+
+    # ── Cycle ────────────────────────────────────────────────────────────────
+    cycle_hz: 20.0
+
+    # ── Tracking ─────────────────────────────────────────────────────────────
+    goal_tolerance_m: 0.15
+    cte_scale: 63.0
+    cte_max_m: 1.0
+
+    # ── Obstacle Detection ───────────────────────────────────────────────────
+    # Jarak maksimum obstacle dianggap menghalangi (meter)
+    obstacle_dist_m: 0.45
+
+    # Jarak minimum — titik lebih dekat dari ini diabaikan (noise chasis/lantai)
+    obstacle_min_dist_m: 0.20
+
+    # Setengah sudut sektor depan (derajat) — ±45° = sektor 90° di depan
+    obstacle_angle_deg: 45.0
+
+    # Jumlah scan berturut sebelum obstacle trigger / clear
+    # Mencegah flip-flop dari noise sesekali (20Hz → 3 scan = 150ms debounce)
+    obstacle_confirm_n: 3
